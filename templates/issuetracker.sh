@@ -1,6 +1,6 @@
 #!/bin/bash
 # Automated Bug Workflow - Main Orchestrator
-# Usage: automated-bug-workflow.sh [scan|fix|status]
+# Usage: issuetracker.sh [scan|fix|status]
 
 set -euo pipefail
 
@@ -77,7 +77,7 @@ case "$COMMAND" in
   fix)
     ISSUE_NUMBER="${2:-}"
     if [ -z "$ISSUE_NUMBER" ]; then
-      echo "Usage: automated-bug-workflow.sh fix <issue-number>"
+      echo "Usage: issuetracker.sh fix <issue-number>"
       exit 1
     fi
 
@@ -105,7 +105,7 @@ case "$COMMAND" in
     ;;
 
   *)
-    echo "Usage: automated-bug-workflow.sh [scan|fix|status]"
+    echo "Usage: issuetracker.sh [scan|fix|status]"
     exit 1
     ;;
 esac

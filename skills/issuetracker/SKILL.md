@@ -1,5 +1,5 @@
 ---
-name: automated-bug-workflow
+name: issuetracker
 description: Complete workflow for detecting, reviewing, and fixing bugs across multiple languages. Use when running builds, on errors, or on-demand scans.
 ---
 
@@ -21,11 +21,11 @@ Orchestrates multi-agent workflow for automated bug detection and fixing:
 
 ## Usage
 
-Invoke with: `/automated-bug-workflow [scan|fix|status]`
+Invoke with: `/issuetracker [scan|fix|status]`
 
 ### Commands
 
-#### `/automated-bug-workflow scan`
+#### `/issuetracker scan`
 Full automated scan and fix workflow:
 ```
 1. Detect project languages
@@ -38,10 +38,10 @@ Full automated scan and fix workflow:
 
 **Example**:
 ```bash
-> /automated-bug-workflow scan
+> /issuetracker scan
 ```
 
-#### `/automated-bug-workflow fix <issue-number>`
+#### `/issuetracker fix <issue-number>`
 Fix specific issue:
 ```
 1. Run issue-reviewer on issue
@@ -51,10 +51,10 @@ Fix specific issue:
 
 **Example**:
 ```bash
-> /automated-bug-workflow fix 456
+> /issuetracker fix 456
 ```
 
-#### `/automated-bug-workflow status`
+#### `/issuetracker status`
 Show status of automated bug fixes:
 ```
 - Open auto-detected issues
@@ -65,7 +65,7 @@ Show status of automated bug fixes:
 
 **Example**:
 ```bash
-> /automated-bug-workflow status
+> /issuetracker status
 ```
 
 ## Complete Workflow Diagram
@@ -318,7 +318,7 @@ The skill automatically handles setup on first run:
 - Branch protection configured (optional)
 - Language tools installed (tsc, go, python, etc.)
 
-**No manual setup required!** Just run `/automated-bug-workflow scan`
+**No manual setup required!** Just run `/issuetracker scan`
 
 ## Label Setup (Automatic on First Run)
 
@@ -347,12 +347,12 @@ gh label create "priority:low" --color "0E8A16"
 
 ## Per-Project Customization
 
-Create `.claude/skills/automated-bug-workflow/SKILL.md` in your project:
+Create `.claude/skills/issuetracker/SKILL.md` in your project:
 
 ```markdown
 ---
-name: automated-bug-workflow
-extends: global:automated-bug-workflow
+name: issuetracker
+extends: global:issuetracker
 ---
 
 # Project-Specific Configuration
@@ -419,7 +419,7 @@ on:
 ### Manual Trigger
 Direct invocation:
 ```bash
-> /automated-bug-workflow scan
+> /issuetracker scan
 ```
 
 ## Safety Guarantees

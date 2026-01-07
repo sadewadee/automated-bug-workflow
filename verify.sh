@@ -22,9 +22,9 @@ REQUIRED_FILES=(
   "agents/bug-detector/AGENT.md"
   "agents/issue-reviewer/AGENT.md"
   "agents/bug-fixer/AGENT.md"
-  "skills/automated-bug-workflow/SKILL.md"
+  "skills/issuetracker/SKILL.md"
   "hooks/detect-errors.sh"
-  "templates/automated-bug-workflow.sh"
+  "templates/issuetracker.sh"
   "templates/setup-labels.sh"
 )
 
@@ -101,7 +101,7 @@ if [ $ERRORS -eq 0 ]; then
   echo "1. git init"
   echo "2. git add ."
   echo "3. git commit -m \"Initial commit: Automated Bug Workflow v1.0.0\""
-  echo "4. git remote add origin https://github.com/sadewadee/automated-bug-workflow.git"
+  echo "4. git remote add origin https://github.com/sadewadee/issuetracker.git"
   echo "5. git push -u origin main"
   echo ""
   echo "Then create a release:"

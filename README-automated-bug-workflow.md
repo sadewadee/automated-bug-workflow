@@ -19,10 +19,10 @@ Complete multi-agent workflow for automated bug detection, **security vulnerabil
 
 ```bash
 # Option 1: Direct command
-> /automated-bug-workflow scan
+> /issuetracker scan
 
 # Option 2: Helper script (shows step-by-step)
-> ~/.claude/templates/automated-bug-workflow.sh scan
+> ~/.claude/templates/issuetracker.sh scan
 ```
 
 On first run, the workflow automatically:
@@ -35,7 +35,7 @@ On first run, the workflow automatically:
 
 ```bash
 # Full scan workflow (bugs + security)
-> /automated-bug-workflow scan
+> /issuetracker scan
 
 # Or step-by-step (more control)
 > Use bug-detector agent to scan and create GitHub issues
@@ -43,10 +43,10 @@ On first run, the workflow automatically:
 > Use bug-fixer agent to fix eligible issues
 
 # Fix specific issue
-> /automated-bug-workflow fix 456
+> /issuetracker fix 456
 
 # Check status
-> /automated-bug-workflow status
+> /issuetracker status
 ```
 
 ### Automatic Usage

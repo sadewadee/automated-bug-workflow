@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-Compatible-blue)](https://claude.com/claude-code)
-[![GitHub Issues](https://img.shields.io/github/issues/sadewadee/automated-bug-workflow)](https://github.com/sadewadee/automated-bug-workflow/issues)
+[![GitHub Issues](https://img.shields.io/github/issues/sadewadee/issuetracker)](https://github.com/sadewadee/issuetracker/issues)
 
 Complete multi-agent workflow for **automated bug detection**, **security vulnerability scanning**, GitHub issue creation, and auto-fixing across **6 programming languages**.
 
@@ -50,7 +50,7 @@ After bug-fixer creates a PR, issue-reviewer automatically validates:
 
 ```bash
 # Clone the repository
-git clone https://github.com/sadewadee/automated-bug-workflow.git
+git clone https://github.com/sadewadee/issuetracker.git
 cd automated-bug-workflow
 
 # Run installer
@@ -62,10 +62,10 @@ chmod +x install.sh
 
 ```bash
 # Option 1: Use the skill
-> /automated-bug-workflow scan
+> /issuetracker scan
 
 # Option 2: Use the helper script
-~/.claude/templates/automated-bug-workflow.sh scan
+~/.claude/templates/issuetracker.sh scan
 ```
 
 On first run, the workflow automatically:
@@ -120,7 +120,7 @@ On first run, the workflow automatically:
 
 ```bash
 # Scan for bugs + security issues
-> /automated-bug-workflow scan
+> /issuetracker scan
 ```
 
 This will:
@@ -135,7 +135,7 @@ This will:
 
 ```bash
 # Fix a single issue
-> /automated-bug-workflow fix 456
+> /issuetracker fix 456
 ```
 
 ### Override Manual Review
@@ -152,7 +152,7 @@ This will:
 
 ```bash
 # View workflow status
-> /automated-bug-workflow status
+> /issuetracker status
 ```
 
 Shows:
@@ -169,7 +169,7 @@ Shows:
 │                     Trigger Points                          │
 ├─────────────────────────────────────────────────────────────┤
 │ 1. Hooks (PostToolUse) - On error detection                │
-│ 2. Manual - /automated-bug-workflow scan                    │
+│ 2. Manual - /issuetracker scan                    │
 └──────────────────┬──────────────────────────────────────────┘
                    │
                    ▼
@@ -436,8 +436,8 @@ MIT License - see [LICENSE](./LICENSE) file for details.
 
 ## 🆘 Support
 
-- **Issues**: [GitHub Issues](https://github.com/sadewadee/automated-bug-workflow/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/sadewadee/automated-bug-workflow/discussions)
+- **Issues**: [GitHub Issues](https://github.com/sadewadee/issuetracker/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/sadewadee/issuetracker/discussions)
 - **Logs**: `~/.claude/logs/error-detection.log`
 
 ---

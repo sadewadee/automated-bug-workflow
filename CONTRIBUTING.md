@@ -6,7 +6,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ### Reporting Bugs
 
-1. Check if the bug has already been reported in [Issues](https://github.com/sadewadee/automated-bug-workflow/issues)
+1. Check if the bug has already been reported in [Issues](https://github.com/sadewadee/issuetracker/issues)
 2. If not, create a new issue with:
    - Clear title and description
    - Steps to reproduce
@@ -17,7 +17,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ### Suggesting Enhancements
 
-1. Check [Discussions](https://github.com/sadewadee/automated-bug-workflow/discussions) for existing suggestions
+1. Check [Discussions](https://github.com/sadewadee/issuetracker/discussions) for existing suggestions
 2. Create a new discussion with:
    - Clear use case
    - Expected benefit
@@ -71,14 +71,14 @@ To add new security patterns:
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR-USERNAME/automated-bug-workflow.git
+git clone https://github.com/YOUR-USERNAME/issuetracker.git
 cd automated-bug-workflow
 
 # Install to Claude Code
 ./install.sh
 
 # Test
-> /automated-bug-workflow scan
+> /issuetracker scan
 ```
 
 ### Testing
@@ -224,8 +224,8 @@ We especially welcome contributions in:
 
 ## 📞 Questions?
 
-- Open a [Discussion](https://github.com/sadewadee/automated-bug-workflow/discussions)
-- Ask in [Issues](https://github.com/sadewadee/automated-bug-workflow/issues)
+- Open a [Discussion](https://github.com/sadewadee/issuetracker/discussions)
+- Ask in [Issues](https://github.com/sadewadee/issuetracker/issues)
 
 ## 🙏 Thank You!
 

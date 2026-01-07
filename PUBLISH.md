@@ -13,7 +13,7 @@ All files have been created and verified:
 - ✅ 3 agents (bug-detector, issue-reviewer, bug-fixer)
 - ✅ 1 skill (automated-bug-workflow)
 - ✅ 1 hook (detect-errors.sh)
-- ✅ 2 templates (automated-bug-workflow.sh, setup-labels.sh)
+- ✅ 2 templates (issuetracker.sh, setup-labels.sh)
 
 ## 🚀 Publishing Steps
 
@@ -22,7 +22,7 @@ All files have been created and verified:
 ```bash
 # On GitHub.com:
 # 1. Go to https://github.com/new
-# 2. Repository name: automated-bug-workflow
+# 2. Repository name: issuetracker
 # 3. Description: Automated bug detection & security scanning for Claude Code
 # 4. Public repository
 # 5. Do NOT initialize with README (we have one)
@@ -32,7 +32,7 @@ All files have been created and verified:
 ### 2. Initialize Git
 
 ```bash
-cd ~/Downloads/Plugin\ Pro/automated-bug-workflow
+cd ~/Downloads/Plugin\ Pro/issuetracker
 
 git init
 git add .
@@ -46,7 +46,7 @@ git commit -m "feat: initial release v1.0.0
 - Zero-setup installation"
 
 git branch -M main
-git remote add origin https://github.com/sadewadee/automated-bug-workflow.git
+git remote add origin https://github.com/sadewadee/issuetracker.git
 git push -u origin main
 ```
 
@@ -83,9 +83,9 @@ On GitHub repository page, add topics:
 
 Update these URLs in README.md after repo is created:
 ```markdown
-[![GitHub Issues](https://img.shields.io/github/issues/sadewadee/automated-bug-workflow)](https://github.com/sadewadee/automated-bug-workflow/issues)
-[![GitHub Stars](https://img.shields.io/github/stars/sadewadee/automated-bug-workflow)](https://github.com/sadewadee/automated-bug-workflow/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/sadewadee/automated-bug-workflow)](https://github.com/sadewadee/automated-bug-workflow/network)
+[![GitHub Issues](https://img.shields.io/github/issues/sadewadee/issuetracker)](https://github.com/sadewadee/issuetracker/issues)
+[![GitHub Stars](https://img.shields.io/github/stars/sadewadee/issuetracker)](https://github.com/sadewadee/issuetracker/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/sadewadee/issuetracker)](https://github.com/sadewadee/issuetracker/network)
 ```
 
 ### 6. Enable GitHub Features
@@ -110,7 +110,7 @@ On GitHub repository settings:
 • GitHub automation
 • Zero setup
 
-Try it: github.com/sadewadee/automated-bug-workflow
+Try it: github.com/sadewadee/issuetracker
 
 #ClaudeCode #DevTools #Automation
 ```
@@ -128,7 +128,7 @@ Key features:
 ✅ Auto-fix for simple issues
 ✅ Zero-setup installation
 
-Check it out: https://github.com/sadewadee/automated-bug-workflow
+Check it out: https://github.com/sadewadee/issuetracker
 
 #opensource #devtools #automation
 ```
@@ -146,7 +146,7 @@ Features:
 - Conservative auto-fix (only imports & unused code)
 - Zero manual setup
 
-GitHub: https://github.com/sadewadee/automated-bug-workflow
+GitHub: https://github.com/sadewadee/issuetracker
 
 Would love feedback from the community!
 ```
