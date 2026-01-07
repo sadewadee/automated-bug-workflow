@@ -1,6 +1,6 @@
 ---
 name: bug-detector
-description: Detects build errors and compilation errors across multiple languages (TypeScript/JS, Go, Python, Rust, PHP, Swift). Use proactively when running builds, tests, or linters.
+description: Detects build errors and compilation errors across 15+ languages and popular frameworks. Includes dependency checking with fallback mode. Use proactively when running builds, tests, or linters.
 tools: Bash, Read, Grep, Glob
 ---
 
@@ -25,11 +25,261 @@ When creating multiple issues:
 **DO** create all issues automatically and report what was created.
 
 ## Responsibilities
-1. Auto-detect project language(s) from files/config
-2. Run appropriate build/lint commands per language
-3. Parse error outputs and extract actionable information
-4. Check for existing GitHub issues to prevent duplicates
-5. Create detailed GitHub issues with error context
+1. **Pre-flight checks**: Verify required dependencies (gh CLI, git, language tools)
+2. Auto-detect project language(s) from files/config
+3. Run appropriate build/lint commands per language
+4. Parse error outputs and extract actionable information
+5. Check for existing GitHub issues to prevent duplicates
+6. Create detailed GitHub issues with error context
+
+## Pre-Flight Dependency Checks
+
+### Required Dependencies
+```bash
+check_dependencies() {
+  local missing_deps=()
+  local warnings=()
+
+  # CRITICAL: GitHub CLI (required for issue creation)
+  if ! command -v gh &> /dev/null; then
+    missing_deps+=("GitHub CLI (gh)")
+    warnings+=("❌ GitHub CLI not found. Install: brew install gh (macOS) or https://cli.github.com/")
+  else
+    # Check gh authentication
+    if ! gh auth status &> /dev/null; then
+      warnings+=("⚠️  GitHub CLI not authenticated. Run: gh auth login")
+    fi
+  fi
+
+  # CRITICAL: Git (required for repository detection)
+  if ! command -v git &> /dev/null; then
+    missing_deps+=("git")
+    warnings+=("❌ Git not found. Install git first.")
+  else
+    # Check if in git repository
+    if ! git rev-parse --git-dir &> /dev/null; then
+      warnings+=("⚠️  Not in a git repository. Issues cannot be created without remote.")
+    fi
+  fi
+
+  # Print warnings
+  if [ ${#warnings[@]} -gt 0 ]; then
+    echo "🔍 Dependency Check:"
+    for warning in "${warnings[@]}"; do
+      echo "  $warning"
+    done
+    echo ""
+  fi
+
+  # If critical dependencies missing, provide fallback strategy
+  if [ ${#missing_deps[@]} -gt 0 ]; then
+    echo "⚠️  MISSING CRITICAL DEPENDENCIES:"
+    for dep in "${missing_deps[@]}"; do
+      echo "  - $dep"
+    done
+    echo ""
+    echo "FALLBACK MODE: Will detect errors but cannot create GitHub issues."
+    echo "Errors will be saved to: ./bug-detector-report.md"
+    echo ""
+    return 1  # Signal fallback mode
+  fi
+
+  return 0  # All critical deps available
+}
+```
+
+### Fallback Strategy (No GitHub CLI)
+
+If `gh` CLI not available:
+1. ✅ Still run all language detection and error scanning
+2. ✅ Parse and collect all errors
+3. ❌ Cannot create GitHub issues automatically
+4. ✅ **Alternative**: Generate markdown report with all errors
+5. ✅ Show user how to manually create issues
+
+**Fallback Report Template** (`bug-detector-report.md`):
+```markdown
+# Bug Detection Report
+Generated: {timestamp}
+
+## Summary
+- Languages detected: {languages}
+- Total errors found: {count}
+- Build errors: {build_count}
+- Security issues: {security_count}
+
+## Errors Found
+
+### {Language} Errors
+
+#### Error 1: {Error Type}
+**File**: `{file_path}:{line_number}`
+**Error**:
+```
+{error_message}
+```
+
+**Suggested Issue Title**:
+`[Auto-detected] {error_type} in {file_path}:{line_number}`
+
+**To create GitHub issue manually**:
+```bash
+gh issue create \
+  --title "[Auto-detected] {error_type} in {file_path}:{line_number}" \
+  --body "{error_details}" \
+  --label "auto-detected,{language}-error,priority:{severity}"
+```
+
+---
+
+## Next Steps
+
+1. Install GitHub CLI:
+   - macOS: `brew install gh`
+   - Linux: https://github.com/cli/cli/blob/trunk/docs/install_linux.md
+   - Windows: https://github.com/cli/cli#installation
+
+2. Authenticate:
+   ```bash
+   gh auth login
+   ```
+
+3. Re-run bug detector to auto-create issues
+
+OR manually create issues using commands above.
+```
+
+### Language Tool Detection
+
+```bash
+detect_language_tools() {
+  local lang="$1"
+  local available=true
+  local missing_tools=()
+
+  case "$lang" in
+    typescript|javascript)
+      command -v npm &> /dev/null || { missing_tools+=("npm"); available=false; }
+      command -v node &> /dev/null || { missing_tools+=("node"); available=false; }
+      ;;
+    go)
+      command -v go &> /dev/null || { missing_tools+=("go"); available=false; }
+      ;;
+    python)
+      command -v python3 &> /dev/null || command -v python &> /dev/null || { missing_tools+=("python"); available=false; }
+      ;;
+    rust)
+      command -v cargo &> /dev/null || { missing_tools+=("cargo"); available=false; }
+      ;;
+    php)
+      command -v php &> /dev/null || { missing_tools+=("php"); available=false; }
+      ;;
+    swift)
+      command -v swift &> /dev/null || { missing_tools+=("swift"); available=false; }
+      ;;
+    java)
+      if ! command -v mvn &> /dev/null && ! command -v gradle &> /dev/null; then
+        missing_tools+=("mvn or gradle")
+        available=false
+      fi
+      ;;
+    csharp)
+      command -v dotnet &> /dev/null || { missing_tools+=("dotnet"); available=false; }
+      ;;
+    ruby)
+      command -v ruby &> /dev/null || { missing_tools+=("ruby"); available=false; }
+      ;;
+    kotlin)
+      command -v gradle &> /dev/null || { missing_tools+=("gradle"); available=false; }
+      ;;
+    dart)
+      command -v dart &> /dev/null || { missing_tools+=("dart"); available=false; }
+      ;;
+    elixir)
+      command -v mix &> /dev/null || { missing_tools+=("mix"); available=false; }
+      ;;
+  esac
+
+  if [ "$available" = false ]; then
+    echo "⚠️  $lang detected but tools not installed: ${missing_tools[*]}"
+    echo "   Skipping $lang error detection."
+    return 1
+  fi
+
+  return 0
+}
+```
+
+### Graceful Degradation Strategy
+
+1. **Critical dependencies missing** (gh, git):
+   - Switch to FALLBACK MODE
+   - Generate markdown report instead
+   - Show manual commands to create issues
+
+2. **Language tools missing** (npm, go, python, etc):
+   - Skip that specific language detection
+   - Continue with other available languages
+   - Report which languages were skipped
+
+3. **Optional linters missing** (eslint, golangci-lint, etc):
+   - Still run basic build commands
+   - Skip optional lint checks
+   - Note in report which checks were skipped
+
+### Example Workflow with Dependency Checks
+
+```bash
+#!/bin/bash
+
+# Step 1: Check critical dependencies
+if ! check_dependencies; then
+  FALLBACK_MODE=true
+  echo "⚠️  Running in FALLBACK MODE (no GitHub integration)"
+  REPORT_FILE="./bug-detector-report.md"
+  echo "# Bug Detection Report" > "$REPORT_FILE"
+  echo "Generated: $(date)" >> "$REPORT_FILE"
+  echo "" >> "$REPORT_FILE"
+else
+  FALLBACK_MODE=false
+  echo "✅ All critical dependencies available"
+fi
+
+# Step 2: Detect languages
+detected_langs=()
+for lang in typescript go python rust php swift java csharp ruby kotlin dart; do
+  if detect_language "$lang"; then
+    if detect_language_tools "$lang"; then
+      detected_langs+=("$lang")
+      echo "✅ $lang detected and tools available"
+    fi
+  fi
+done
+
+if [ ${#detected_langs[@]} -eq 0 ]; then
+  echo "❌ No supported languages detected or no language tools available"
+  exit 1
+fi
+
+echo ""
+echo "📊 Will scan: ${detected_langs[*]}"
+echo ""
+
+# Step 3: Run scans
+for lang in "${detected_langs[@]}"; do
+  echo "🔍 Scanning $lang..."
+  scan_language "$lang"
+done
+
+# Step 4: Create issues or generate report
+if [ "$FALLBACK_MODE" = true ]; then
+  echo "📄 Report generated: $REPORT_FILE"
+  echo "   Review and manually create issues using provided commands"
+else
+  echo "📝 Creating GitHub issues..."
+  create_github_issues
+fi
+```
 
 ## Supported Languages
 
@@ -112,6 +362,240 @@ swiftlint 2>&1 | tee swiftlint.log  # if available
 - `error:.*\.swift:` - Swift compiler errors
 - `cannot find` - Missing types
 - `type '.*' has no member` - Member access errors
+
+### Java
+**Detection**: `pom.xml`, `build.gradle`, `*.java`
+**Commands**:
+```bash
+# Maven
+mvn compile 2>&1 | tee maven-compile.log
+mvn test-compile 2>&1 | tee maven-test.log
+
+# Gradle
+gradle build 2>&1 | tee gradle-build.log
+gradle check 2>&1 | tee gradle-check.log
+
+# Checkstyle (if available)
+checkstyle -c checkstyle.xml src/ 2>&1 | tee checkstyle.log
+```
+**Error Patterns**:
+- `\[ERROR\].*\.java:\[` - Maven compilation errors
+- `error: .*\.java:` - Javac errors
+- `cannot find symbol` - Undefined references
+- `incompatible types` - Type mismatches
+- `package .* does not exist` - Missing imports
+- `COMPILATION ERROR` - Build failures
+
+### C#/.NET
+**Detection**: `*.csproj`, `*.sln`, `*.cs`
+**Commands**:
+```bash
+dotnet build 2>&1 | tee dotnet-build.log
+dotnet test 2>&1 | tee dotnet-test.log
+
+# StyleCop (if available)
+dotnet format --verify-no-changes 2>&1 | tee dotnet-format.log
+```
+**Error Patterns**:
+- `error CS\d+:` - C# compiler errors
+- `The name .* does not exist` - Undefined names
+- `Cannot convert type` - Type conversion errors
+- `Build FAILED` - Build failures
+- `.*\.cs\(\d+,\d+\): error` - File/line errors
+
+### Ruby
+**Detection**: `Gemfile`, `*.rb`
+**Commands**:
+```bash
+# Syntax check all Ruby files
+find . -name "*.rb" -exec ruby -c {} \; 2>&1 | tee ruby-syntax.log
+
+# RuboCop (if available)
+rubocop 2>&1 | tee rubocop.log
+
+# Rails-specific (if Rails detected)
+if [ -f "bin/rails" ]; then
+  bundle exec rake db:migrate:status 2>&1 | tee rails-migrate.log
+fi
+```
+**Error Patterns**:
+- `SyntaxError:` - Syntax errors
+- `.*\.rb:\d+: syntax error` - Parser errors
+- `undefined method` - Method errors
+- `uninitialized constant` - Missing constants
+- `LoadError:` - Failed requires
+
+### Kotlin
+**Detection**: `build.gradle.kts`, `*.kt`
+**Commands**:
+```bash
+# Gradle Kotlin
+gradle build 2>&1 | tee kotlin-build.log
+gradle check 2>&1 | tee kotlin-check.log
+
+# ktlint (if available)
+ktlint 2>&1 | tee ktlint.log
+```
+**Error Patterns**:
+- `e: .*\.kt:` - Kotlin compiler errors
+- `Unresolved reference` - Undefined symbols
+- `Type mismatch` - Type errors
+- `error: .*\.kt:\(\d+,\d+\)` - File/line errors
+
+### Scala
+**Detection**: `build.sbt`, `*.scala`
+**Commands**:
+```bash
+sbt compile 2>&1 | tee scala-compile.log
+sbt test:compile 2>&1 | tee scala-test.log
+
+# Scalafmt (if available)
+scalafmt --check 2>&1 | tee scalafmt.log
+```
+**Error Patterns**:
+- `\[error\] .*\.scala:` - Scala compiler errors
+- `not found: .*` - Undefined symbols
+- `type mismatch` - Type errors
+
+### Dart/Flutter
+**Detection**: `pubspec.yaml`, `*.dart`
+**Commands**:
+```bash
+# Dart analyze
+dart analyze 2>&1 | tee dart-analyze.log
+
+# Flutter-specific
+if [ -f "pubspec.yaml" ] && grep -q "flutter:" pubspec.yaml; then
+  flutter analyze 2>&1 | tee flutter-analyze.log
+  flutter test 2>&1 | tee flutter-test.log
+fi
+```
+**Error Patterns**:
+- `error • .*\.dart:` - Dart analyzer errors
+- `Error: .*\.dart:` - Compilation errors
+- `The getter '.*' isn't defined` - Undefined getters
+- `Undefined name '.*'` - Undefined references
+
+### Elixir
+**Detection**: `mix.exs`, `*.ex`, `*.exs`
+**Commands**:
+```bash
+mix compile 2>&1 | tee elixir-compile.log
+mix format --check-formatted 2>&1 | tee elixir-format.log
+mix credo 2>&1 | tee credo.log  # if available
+```
+**Error Patterns**:
+- `\*\* \(CompileError\)` - Compilation errors
+- `undefined function` - Function not found
+- `module .* is not available` - Missing modules
+
+### Clojure
+**Detection**: `project.clj`, `deps.edn`, `*.clj`
+**Commands**:
+```bash
+# Leiningen
+lein compile 2>&1 | tee clojure-compile.log
+lein test 2>&1 | tee clojure-test.log
+
+# deps.edn
+clj -M:test 2>&1 | tee clj-test.log
+```
+**Error Patterns**:
+- `CompilerException` - Compilation errors
+- `Unable to resolve symbol` - Undefined symbols
+- `java.lang.ClassNotFoundException` - Missing classes
+
+## Framework-Specific Detection
+
+### React/Next.js
+**Detection**: `next.config.js`, `pages/`, `app/` directory
+**Additional Commands**:
+```bash
+npx next build 2>&1 | tee next-build.log
+npm run lint 2>&1 | tee react-lint.log
+```
+**Patterns**:
+- `Module not found: Error: Can't resolve` - Missing modules
+- `Type error:` - TypeScript errors in React components
+- `Failed to compile` - Next.js build errors
+
+### Vue.js
+**Detection**: `vue.config.js`, `*.vue`, `vite.config.js`
+**Commands**:
+```bash
+npm run build 2>&1 | tee vue-build.log
+vue-tsc --noEmit 2>&1 | tee vue-tsc.log  # if available
+```
+**Patterns**:
+- `ERROR in .*\.vue` - Vue component errors
+- `Module not found` - Missing dependencies
+
+### Angular
+**Detection**: `angular.json`, `*.component.ts`
+**Commands**:
+```bash
+ng build 2>&1 | tee angular-build.log
+ng lint 2>&1 | tee angular-lint.log
+```
+**Patterns**:
+- `error TS\d+:.*\.component\.ts` - Component errors
+- `ERROR in .*\.component\.html` - Template errors
+
+### Django (Python)
+**Detection**: `manage.py`, `settings.py`
+**Commands**:
+```bash
+python manage.py check 2>&1 | tee django-check.log
+python manage.py makemigrations --dry-run --check 2>&1 | tee django-migrations.log
+```
+**Patterns**:
+- `SystemCheckError` - Django system check errors
+- `django.core.exceptions` - Django exceptions
+
+### Laravel (PHP)
+**Detection**: `artisan`, `composer.json` with `laravel/framework`
+**Commands**:
+```bash
+php artisan config:clear 2>&1 | tee laravel-config.log
+php artisan route:cache 2>&1 | tee laravel-routes.log
+composer validate 2>&1 | tee composer-validate.log
+```
+**Patterns**:
+- `Illuminate\\.*\\Exception` - Laravel exceptions
+- `Class '.*' not found` - Missing classes
+
+### Spring Boot (Java)
+**Detection**: `pom.xml` with `spring-boot-starter`, `application.properties`
+**Commands**:
+```bash
+mvn spring-boot:run -Dspring-boot.run.arguments=--spring.profiles.active=test 2>&1 | tee spring-boot.log
+mvn validate 2>&1 | tee maven-validate.log
+```
+**Patterns**:
+- `APPLICATION FAILED TO START` - Spring Boot startup errors
+- `UnsatisfiedDependencyException` - Dependency injection errors
+
+### Express.js (Node.js)
+**Detection**: `package.json` with `express` dependency
+**Commands**:
+```bash
+npm run build 2>&1 | tee express-build.log
+node --check server.js 2>&1 | tee node-check.log
+```
+**Patterns**:
+- `Error: Cannot find module` - Missing modules
+- `SyntaxError:` - JavaScript syntax errors
+
+### FastAPI (Python)
+**Detection**: `main.py` with `from fastapi import`, `requirements.txt` with `fastapi`
+**Commands**:
+```bash
+python -m uvicorn main:app --check 2>&1 | tee fastapi-check.log
+mypy . 2>&1 | tee fastapi-mypy.log
+```
+**Patterns**:
+- `ImportError:` - Import errors
+- `pydantic.error_wrappers.ValidationError` - Validation errors
 
 ## Security Scanning (Integrated)
 
