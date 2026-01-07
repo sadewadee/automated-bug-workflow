@@ -1,0 +1,72 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Claude Code (don't commit local state)
+.claude/.local-state.json
+.claude/logs/
+
+# Test files
+test-project/
+test-errors.ts
+*.test.log
+
+# Build outputs
+build.log
+tsc.log
+lint.log
+npm-audit.log
+go-build.log
+cargo-build.log
+php-lint.log
+py-compile.log
+
+# Security scan outputs
+hardcoded-secrets.log
+dangerous-functions.log
+gosec.log
+bandit.log
+snyk.log
+
+# Backup files
+*.backup
+*.bak
+settings.json.backup.*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+vendor/
+__pycache__/
+*.pyc
+
+# OS generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# GitHub specific
+.github/workflows/test-*.yml
