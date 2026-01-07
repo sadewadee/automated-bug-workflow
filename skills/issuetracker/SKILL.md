@@ -3,51 +3,139 @@ name: issuetracker
 description: Complete workflow for detecting, reviewing, and fixing bugs across multiple languages. Use when running builds, on errors, or on-demand scans.
 ---
 
-# Automated Bug Workflow Skill
+# Issue Tracker Workflow
 
-## Overview
-Orchestrates multi-agent workflow for automated bug detection and fixing:
-1. **bug-detector** → Scans code for errors (multi-language)
-2. **issue-reviewer** → Triages and prioritizes issues
-3. **bug-fixer** → Fixes simple issues (imports + unused code only)
+## INSTRUCTIONS: When this skill is invoked
 
-## Supported Languages
-✅ TypeScript/JavaScript (Node.js)
-✅ Go
-✅ Python
-✅ Rust
-✅ PHP
-✅ Swift
+### If invoked with `/issuetracker scan`:
 
-## Usage
+1. **Immediately** use the Task tool to invoke the bug-detector agent:
+   ```
+   Task tool with:
+   - subagent_type: "general-purpose"
+   - description: "Scan for bugs and create issues"
+   - prompt: "Use the bug-detector agent to scan for all errors (build, lint, type, security) in this project and create GitHub issues for each error found. Report how many issues were created."
+   ```
 
-Invoke with: `/issuetracker [scan|fix|status]`
+2. **After bug-detector completes**, check the output:
+   - If 0 errors found: Report "✅ No errors found" and STOP
+   - If errors found: Continue to step 3
 
-### Commands
+3. **Ask user permission**:
+   "Found X issues. Would you like me to review and auto-fix eligible ones? (yes/no)"
 
-#### `/issuetracker scan`
-Full automated scan and fix workflow:
-```
-1. Detect project languages
-2. Run bug-detector agent
-3. Create GitHub issues for errors found
-4. Run issue-reviewer agent on new issues
-5. Run bug-fixer agent on eligible issues
-6. Report summary
-```
+   - If user says NO: STOP and show GitHub issues link
+   - If user says YES: Continue to step 4
 
-**Example**:
-```bash
-> /issuetracker scan
-```
+4. **Immediately** use the Task tool to invoke issue-reviewer agent:
+   ```
+   Task tool with:
+   - subagent_type: "general-purpose"
+   - description: "Review auto-detected issues"
+   - prompt: "Use the issue-reviewer agent to review all issues with label 'auto-detected'. For each issue, determine if it's auto-fix eligible (unused imports/variables only) and add appropriate labels. Report how many are auto-fix eligible."
+   ```
 
-#### `/issuetracker fix <issue-number>`
-Fix specific issue:
-```
-1. Run issue-reviewer on issue
-2. If eligible, run bug-fixer
-3. Create PR with fix
-```
+5. **After issue-reviewer completes**, check the output:
+   - If 0 auto-fix eligible: Report "No auto-fixable issues" and STOP
+   - If auto-fix eligible found: Continue to step 6
+
+6. **Ask user permission**:
+   "Found Y auto-fix eligible issues. Proceed with auto-fix? (yes/no)"
+
+   - If user says NO: STOP and show issues link
+   - If user says YES: Continue to step 7
+
+7. **Immediately** use the Task tool to invoke bug-fixer agent:
+   ```
+   Task tool with:
+   - subagent_type: "general-purpose"
+   - description: "Auto-fix eligible issues"
+   - prompt: "Use the bug-fixer agent to fix all issues with label 'auto-fix-eligible'. For each issue: read the file, apply the fix, create a PR, and trigger issue-reviewer for QA. Report how many PRs were created."
+   ```
+
+8. **Report final summary**:
+   ```
+   ✅ Issue Tracker Workflow Complete!
+
+   📊 Summary:
+   - Total errors detected: X
+   - Auto-fixed: Y
+   - Manual review required: Z
+   - PRs created: A
+
+   🔗 View Issues: https://github.com/{org}/{repo}/issues?q=is:issue+label:auto-detected
+   🔗 View PRs: https://github.com/{org}/{repo}/pulls?q=is:pr+label:auto-fix
+   ```
+
+### If invoked with `/issuetracker fix <issue-number>`:
+
+1. **Extract issue number** from the command
+
+2. **Immediately** use the Task tool to invoke issue-reviewer:
+   ```
+   Task tool with:
+   - subagent_type: "general-purpose"
+   - description: "Review single issue"
+   - prompt: "Use issue-reviewer agent to review issue #{issue-number} and determine if it's auto-fix eligible."
+   ```
+
+3. **After review**, check if auto-fix eligible:
+   - If NOT eligible: Report "Issue #{issue-number} requires manual review" and STOP
+   - If eligible: Continue to step 4
+
+4. **Ask user permission**:
+   "Issue #{issue-number} is auto-fix eligible. Proceed? (yes/no)"
+
+   - If NO: STOP
+   - If YES: Continue to step 5
+
+5. **Immediately** use the Task tool to invoke bug-fixer:
+   ```
+   Task tool with:
+   - subagent_type: "general-purpose"
+   - description: "Fix single issue"
+   - prompt: "Use bug-fixer agent to fix issue #{issue-number}, create a PR, and trigger QA review."
+   ```
+
+6. **Report result**:
+   ```
+   ✅ Issue #{issue-number} fixed!
+
+   📝 PR created: #{pr-number}
+   🔗 View PR: {pr-url}
+   ```
+
+### If invoked with `/issuetracker status`:
+
+1. **Immediately** run these bash commands to get status:
+   ```bash
+   gh issue list --label "auto-detected" --state open --json number,title
+   gh pr list --label "auto-fix" --state open --json number,title
+   gh issue list --label "auto-detected" --state closed --limit 10 --json number,title,closedAt
+   ```
+
+2. **Display formatted status**:
+   ```
+   📊 Issue Tracker Status
+
+   Open Issues: X
+   {list of open issues}
+
+   Open PRs: Y
+   {list of open PRs}
+
+   Recently Closed: Z
+   {list of recently closed}
+   ```
+
+## IMPORTANT NOTES
+
+- **Always use the Task tool** to invoke agents (bug-detector, issue-reviewer, bug-fixer)
+- **Never just describe** what should happen - actually invoke the agents
+- **Ask for permission** before issue-reviewer and bug-fixer (but NOT before bug-detector)
+- **Show progress** at each step
+- **Report summaries** after each agent completes
+- If user says "scan" without "/issuetracker" prefix, treat it as "/issuetracker scan"
 
 **Example**:
 ```bash
@@ -351,7 +439,7 @@ Create `.claude/skills/issuetracker/SKILL.md` in your project:
 
 ```markdown
 ---
-name: issuetracker
+name: automated-bug-workflow
 extends: global:issuetracker
 ---
 
