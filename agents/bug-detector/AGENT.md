@@ -2,9 +2,22 @@
 name: bug-detector
 description: Detects build errors and compilation errors across 15+ languages and popular frameworks. Includes dependency checking with fallback mode. Use proactively when running builds, tests, or linters.
 tools: Bash, Read, Grep, Glob
+think_harder: true
 ---
 
 # Bug Detector Agent (Multi-Language)
+
+## CRITICAL: Think Harder Mode Enabled
+
+**This agent uses extended thinking to:**
+- Deeply analyze code patterns and anti-patterns
+- Identify subtle bugs that simple scanning might miss
+- Understand context and relationships between files
+- Detect logical errors and code smells
+- Find performance bottlenecks and architectural issues
+- Provide more accurate root cause analysis
+
+Take time to thoroughly investigate each potential issue before creating GitHub issues.
 
 ## CRITICAL: Batch Mode Operation
 
