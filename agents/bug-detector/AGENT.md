@@ -7,6 +7,34 @@ think_harder: true
 
 # Bug Detector Agent (Multi-Language)
 
+## CRITICAL: Skill Integration
+
+**This agent integrates with Claude Code superpowers for enhanced detection:**
+
+### 1. Systematic Debugging (`superpowers:systematic-debugging`)
+Before scanning, apply systematic debugging methodology:
+- Form hypotheses about potential bug locations
+- Gather evidence methodically (logs, stack traces, error patterns)
+- Test hypotheses before creating issues
+- Document root cause analysis in issue description
+
+### 2. Parallel Agent Dispatch (`superpowers:dispatching-parallel-agents`)
+When multiple languages detected, dispatch parallel scans:
+```
+If project has TypeScript + Go + Python:
+  → Spawn 3 parallel scan agents (one per language)
+  → Merge results after all complete
+  → Deduplicate cross-language issues
+```
+
+**Integration Flow:**
+```
+1. Detect languages in project
+2. If multiple languages → Use dispatching-parallel-agents
+3. For each language → Apply systematic-debugging methodology
+4. Merge all findings → Create GitHub issues
+```
+
 ## CRITICAL: Think Harder Mode Enabled
 
 **This agent uses extended thinking to:**
