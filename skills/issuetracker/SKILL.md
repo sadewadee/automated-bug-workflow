@@ -66,28 +66,57 @@ Take as much time as needed for thorough analysis. Quality over speed."
    Task tool with:
    - subagent_type: "general-purpose"
    - description: "Review auto-detected issues"
-   - prompt: "Use the issue-reviewer agent to review all issues with label 'auto-detected'. For each issue, determine if it's auto-fix eligible (unused imports/variables only) and add appropriate labels. Report how many are auto-fix eligible."
+   - prompt: "THINK HARDER - Issue Review Mode:
+
+Use the issue-reviewer agent to review all issues with label 'auto-detected'.
+
+For each issue:
+1. Read the issue details and file context
+2. Determine complexity (simple vs complex)
+3. Check if auto-fix eligible (ONLY unused imports/variables)
+4. Add appropriate labels:
+   - 'auto-fix-eligible' for simple unused code
+   - 'needs-manual-review' for everything else
+5. Add priority labels (critical/high/medium/low)
+
+CRITICAL: After reviewing ALL issues, you MUST report:
+- Total issues reviewed: X
+- Auto-fix eligible: Y (list issue numbers)
+- Needs manual review: Z (list issue numbers)
+
+THEN IMMEDIATELY continue to bug-fixer if Y > 0. Do NOT stop or ask for permission."
    ```
 
 5. **After issue-reviewer completes**, check the output:
-   - If 0 auto-fix eligible: Report "No auto-fixable issues" and STOP
-   - If auto-fix eligible found: Continue to step 6
+   - If 0 auto-fix eligible: Report "No auto-fixable issues. All require manual review." and STOP
+   - If auto-fix eligible found: **IMMEDIATELY continue to step 6 without asking permission**
 
-6. **Ask user permission**:
-   "Found Y auto-fix eligible issues. Proceed with auto-fix? (yes/no)"
-
-   - If user says NO: STOP and show issues link
-   - If user says YES: Continue to step 7
-
-7. **Immediately** use the Task tool to invoke bug-fixer agent:
+6. **Immediately** use the Task tool to invoke bug-fixer agent:
    ```
    Task tool with:
    - subagent_type: "general-purpose"
    - description: "Auto-fix eligible issues"
-   - prompt: "Use the bug-fixer agent to fix all issues with label 'auto-fix-eligible'. For each issue: read the file, apply the fix, create a PR, and trigger issue-reviewer for QA. Report how many PRs were created."
+   - prompt: "THINK HARDER - Bug Fix Mode:
+
+Use the bug-fixer agent to fix all issues with label 'auto-fix-eligible'.
+
+For each issue:
+1. Read the issue details and affected file
+2. Understand the error context
+3. Apply the fix (remove unused import/variable)
+4. Verify fix doesn't break anything
+5. Create a PR with clear description
+6. Close the original issue with reference to PR
+
+CRITICAL: After fixing ALL eligible issues, you MUST:
+- Report how many PRs were created
+- Report how many issues were closed
+- List all PR numbers and their corresponding issue numbers
+
+Do NOT stop until all auto-fix-eligible issues are processed."
    ```
 
-8. **Report final summary**:
+7. **Report final summary**:
    ```
    ✅ Issue Tracker Workflow Complete!
 
